@@ -73,22 +73,21 @@ if "query_text" not in st.session_state:
 if "last_query" not in st.session_state:
     st.session_state.last_query = ""
 
-# input + tombol X
-st.markdown("<div style='position:relative;'>", unsafe_allow_html=True)
+# callback untuk hapus teks (AMAN)
+def clear_query():
+    st.session_state.query_text = ""
+    st.session_state.last_query = ""
 
+# input query
 query = st.text_input(
     "Masukkan query:",
     placeholder="contoh: resep udang pedas...",
     key="query_text"
 )
 
+# tombol X muncul hanya jika ada teks
 if st.session_state.query_text.strip():
-    if st.button("✖ Hapus", key="clear_btn"):
-        st.session_state.query_text = ""
-        st.session_state.last_query = ""
-        st.rerun()
-
-st.markdown("</div>", unsafe_allow_html=True)
+    st.button("✖ Hapus", on_click=clear_query, key="clear_btn")
 
 # slider top-k
 k = st.slider("Top-K", 1, 10, 5)
