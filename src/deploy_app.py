@@ -36,6 +36,17 @@ h1,h2,h3,h4,p,label{ color:#e5e5e5 !important; }
 .result{ background:#1a1d23; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(255,255,255,0.05); margin-bottom:18px; color:#e5e5e5; }
 .score{ background:#1b5e20; color:#a5d6a7; padding:4px 10px; border-radius:8px; font-weight:600; }
 .badge{ background:#333; color:#eee; }
+/* tombol CARI saat dark mode */
+div.stButton > button {
+    background-color:#2d333b !important;
+    color:white !important;
+    border:1px solid #444 !important;
+}
+div.stButton > button:hover {
+    background-color:#3b424c !important;
+    color:white !important;
+}
+
 </style>
 """
 
