@@ -1,0 +1,29 @@
+{
+  "resep udang pedas": [
+    "udang_balado.txt",
+    "udang_saos_padang.txt",
+    "udang_asam_manis.txt"
+  ],
+
+  "resep ikan kukus": [
+    "ikan_kembung_kukus.txt"
+  ],
+
+  "resep bebek goreng hitam": [
+    "bebek_goreng_bumbu_hitam.txt"
+  ],
+
+  "resep telur": [
+    "telur_dadar_padang.txt",
+    "telur_balado.txt"
+  ],
+
+  "resep mie goreng": [
+    "mie_goreng_telur_baso.txt",
+    "mie_goreng_aceh.txt"
+  ],
+
+  "resep cumi tinta": [
+    "cumi_tinta_hitam.txt"
+  ]
+}

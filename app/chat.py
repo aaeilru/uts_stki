@@ -1,53 +1,43 @@
-import sys
+# app/chat.py
 import os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))  # penting agar src bisa diimpor
+import sys
+# ensure project root on path so src can be imported
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from src.vsm_ir import load_corpus, compute_idf, vectorize, cosine_sim
-from src.preprocess import preprocess_text
+from src.vsm_ir import VSMRetrieval
+from src.preprocess import preprocess_text  # if you have this
+import textwrap
 
-# === Path ===
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data", "processed")
+def make_answer_template(query, best_doc, snippet):
+    # simple template: mention doc title (filename -> pretty) + short snippet
+    title = best_doc.replace(".txt", "").replace("_", " ").title()
+    answer = f"Sepertinya yang Anda maksud adalah **{title}**.\nRingkasan singkat: {snippet}\nCoba baca resep lengkapnya pada dokumen {best_doc}."
+    return answer
 
-# === Load data dan model ===
-print("Memuat korpus resep masakan...")
-corpus = load_corpus(DATA_DIR)
-idf = compute_idf(corpus)
-print(f"✅ {len(corpus)} dokumen dimuat.\n")
-
-# === Fungsi pencarian dokumen top-k ===
-def search_vsm(query, top_k=3):
-    query_tokens = preprocess_text(query)
-    query_vec = vectorize(query_tokens, idf, sublinear=True)
-
-    scores = []
-    for filename, tokens in corpus.items():
-        doc_vec = vectorize(tokens, idf, sublinear=True)
-        sim = cosine_sim(query_vec, doc_vec)
-        scores.append((filename, sim))
-
-    scores = sorted(scores, key=lambda x: x[1], reverse=True)[:top_k]
-    return scores
-
-# === Generator template-based response ===
-def generate_answer(query, results):
-    if not results:
-        return "Maaf, saya tidak menemukan resep yang cocok dengan pertanyaan Anda."
-
-    top_doc = results[0][0].replace("_", " ").replace(".txt", "")
-    return f"Sepertinya yang Anda maksud adalah **{top_doc}**. Coba baca resep ini, cocok untuk kata kunci '{query}'."
-
-# === Chat interface ===
-if __name__ == "__main__":
-    print("=== 🤖 Chatbot Resep Masakan Nusantara ===")
-    print("Ketik 'exit' untuk keluar.\n")
-
+def chat_loop():
+    vsm = VSMRetrieval()
+    vsm.load_processed_docs()
+    vsm.build_tfidf()
+    print(f"Loaded {len(vsm.doc_ids)} documents.\nChatbot siap. Ketik 'exit' untuk keluar.")
     while True:
-        query = input("Anda: ").strip()
-        if query.lower() == "exit":
-            print("Bot: Sampai jumpa!👋🏻")
+        q = input("\nAnda: ").strip()
+        if q.lower() in ("exit", "quit"):
+            print("Bot: Sampai jumpa!")
             break
+        # preprocess query same as corpus
+        tokens = preprocess_text(q)
+        query_str = " ".join(tokens)
+        results = vsm.rank(query_str, k=3)
+        if not results:
+            print("Bot: Maaf, saya tidak menemukan hasil untuk query tersebut.")
+            continue
+        best = results[0]
+        snippet = best["snippet"]
+        answer = make_answer_template(q, best["doc_id"], snippet)
+        print("\nBot:", textwrap.fill(answer, width=80))
+        print("\nTop results:")
+        for r in results:
+            print(f" - {r['doc_id']} (score={r['score']:.4f})")
 
-        results = search_vsm(query)
-        answer = generate_answer(query, results)
-        print(f"Bot: {answer}\n")
+if __name__ == "__main__":
+    chat_loop()
