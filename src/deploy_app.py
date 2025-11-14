@@ -67,7 +67,13 @@ vsm.build_tfidf()
 if "query_text" not in st.session_state:
     st.session_state.query_text = ""
 
-# input query + tombol X
+# init session keys
+if "query_text" not in st.session_state:
+    st.session_state.query_text = ""
+if "last_query" not in st.session_state:
+    st.session_state.last_query = ""
+
+# input + tombol X
 st.markdown("<div style='position:relative;'>", unsafe_allow_html=True)
 
 query = st.text_input(
@@ -76,7 +82,6 @@ query = st.text_input(
     key="query_text"
 )
 
-# tombol X di kanan input
 if st.session_state.query_text.strip():
     if st.button("✖ Hapus", key="clear_btn"):
         st.session_state.query_text = ""
