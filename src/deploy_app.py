@@ -76,13 +76,12 @@ query = st.text_input(
     key="query_text"
 )
 
-# tombol hapus teks
+# tombol X di kanan input
 if st.session_state.query_text.strip():
-    st.markdown(
-        "<button class='clear-btn' onclick=\"document.querySelector('input[type=text]').value=''; "
-        "window.parent.location.reload();\">✖</button>",
-        unsafe_allow_html=True
-    )
+    if st.button("✖ Hapus", key="clear_btn"):
+        st.session_state.query_text = ""
+        st.session_state.last_query = ""
+        st.rerun()
 
 st.markdown("</div>", unsafe_allow_html=True)
 
