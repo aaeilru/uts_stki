@@ -1,193 +1,123 @@
 import streamlit as st
 from vsm_ir import VSMRetrieval
-import re
+import os, re
 
-# =====================================================
-# CONFIG
-# =====================================================
-st.set_page_config(
-    page_title="Mini Search Engine - STKI UTS",
-    page_icon="🔎",
-    layout="centered",
-)
+# konfigurasi tampilan streamlit
+st.set_page_config(page_title="Mini Search Engine", page_icon="🔎")
 
-# -----------------------------------------------------
-# DARK MODE TOGGLE
-# -----------------------------------------------------
-dark_mode = st.toggle("🌙 Dark Mode", value=False)
+# toggle dark mode
+dark = st.toggle("🌙 Dark Mode", False)
 
-# -----------------------------------------------------
-# THEMES WITH TRANSITION
-# -----------------------------------------------------
+# css dasar
 BASE_CSS = """
 <style>
-* {
-    transition: all 0.25s ease-in-out;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-.search-box {
-    padding: 14px 18px;
-    border-radius: 40px;
-    background: #ffffff;
-    border: 2px solid #ddd;
-    font-size: 18px;
-}
-.search-icon {
-    font-size: 25px; 
-    margin-right: 10px;
-}
-
-.fade-in {
-    animation: fadeIn 0.6s ease-in-out;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0px);   }
-}
-
-.badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 8px;
-    background: #eee;
-    font-size: 13px;
-    margin-left: 6px;
-}
-
-.footer {
-    text-align:center;
-    margin-top: 50px;
-    font-size: 13px;
-    color: gray;
-}
+*{ transition:0.25s; font-family:'Segoe UI'; }
+.fade-in{ animation:fadeIn .5s; }
+@keyframes fadeIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+.badge{ padding:3px 8px; border-radius:6px; font-size:12px; margin-left:6px; }
+.footer{ text-align:center; margin-top:40px; color:gray; font-size:13px; }
 </style>
 """
 
-LIGHT_CSS = """
+# css light mode
+LIGHT = """
 <style>
-body { background-color: #f6f7fb; }
-.result-card {
-    background: white;
-    padding: 22px;
-    border-radius: 14px;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.06);
-    margin-bottom: 20px;
-}
-.score-badge {
-    background-color: #e8f5e9;
-    padding: 4px 10px;
-    border-radius: 10px;
-    font-weight: 600;
-    color: #2e7d32;
-}
+body{ background:#f6f7fb; }
+.result{ background:white; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:18px; }
+.score{ background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:8px; font-weight:600; }
 </style>
 """
 
-DARK_CSS = """
+# css dark mode
+DARK = """
 <style>
-body { background-color: #0e1117; }
-h1, h2, h3, h4, p, label { color: #e5e5e5 !important; }
-.result-card {
-    background: #1a1d23;
-    padding: 22px;
-    border-radius: 14px;
-    box-shadow: 0px 4px 8px rgba(255,255,255,0.05);
-    margin-bottom: 20px;
-    color: #e5e5e5;
-}
-.score-badge {
-    background-color: #1b5e20;
-    padding: 4px 10px;
-    border-radius: 10px;
-    font-weight: 600;
-    color: #a5d6a7;
-}
-.badge {
-    background: #333;
-    color: #eee;
-}
+body{ background:#0e1117; }
+h1,h2,h3,h4,p,label{ color:#e5e5e5 !important; }
+.result{ background:#1a1d23; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(255,255,255,0.05); margin-bottom:18px; color:#e5e5e5; }
+.score{ background:#1b5e20; color:#a5d6a7; padding:4px 10px; border-radius:8px; font-weight:600; }
+.badge{ background:#333; color:#eee; }
 </style>
 """
 
+# terapkan css
 st.markdown(BASE_CSS, unsafe_allow_html=True)
-st.markdown(DARK_CSS if dark_mode else LIGHT_CSS, unsafe_allow_html=True)
+st.markdown(DARK if dark else LIGHT, unsafe_allow_html=True)
 
-# =====================================================
-# TITLE
-# =====================================================
+# judul aplikasi
 st.markdown(
-    "<h1 style='text-align:center; font-weight:800;'>🔎 Mini Search Engine<br>VSM STKI UTS</h1>", 
+    "<h1 style='text-align:center; font-weight:800;'>🔎 Mini Search Engine</h1>",
     unsafe_allow_html=True
 )
-st.write("")
 
-# =====================================================
-# LOAD MODEL
-# =====================================================
+# load model VSM
 vsm = VSMRetrieval()
 vsm.load_processed_docs()
 vsm.build_tfidf()
 
-# =====================================================
-# INPUT AREA
-# =====================================================
-with st.container():
-    st.markdown("<div class='search-icon'>🔍</div>", unsafe_allow_html=True)
-    query = st.text_input(
-        "Masukkan query:",
-        placeholder="contoh: resep udang pedas...",
-        key="query",
-    )
+# simpan query terakhir (untuk fungsi tekan ENTER)
+if "last_query" not in st.session_state:
+    st.session_state.last_query = ""
 
+# input query
+query = st.text_input("Masukkan query:", placeholder="contoh: resep udang pedas...")
+
+# jumlah top-k
 k = st.slider("Top-K", 1, 10, 5)
 
-# =====================================================
-# CATEGORY DETECTION
-# =====================================================
-def detect_category(filename):
-    name = filename.lower()
-    if "ayam" in name:
-        return "🐔 Ayam"
-    if "udang" in name or "cumi" in name or "ikan" in name:
-        return "🐟 Seafood"
-    if "sapi" in name or "kambing" in name or "daging" in name:
-        return "🥩 Daging"
-    if "mie" in name or "nasi" in name:
-        return "🍜 Karbohidrat"
+# jalankan pencarian
+run = False
+
+# deteksi enter
+if query and query != st.session_state.last_query:
+    st.session_state.last_query = query
+    run = True
+
+# tombol cari
+if st.button("Cari"):
+    run = True
+
+# deteksi kategori
+def detect_category(f):
+    f = f.lower()
+    if "ayam" in f: return "🐔 Ayam"
+    if any(x in f for x in ["udang", "ikan", "cumi"]): return "🐟 Seafood"
+    if any(x in f for x in ["sapi", "kambing", "daging"]): return "🥩 Daging"
+    if any(x in f for x in ["mie", "nasi"]): return "🍜 Karbohidrat"
     return "🍽️ Makanan"
 
-# -----------------------------------------------------
-# HIGHLIGHT QUERY TERMS
-# -----------------------------------------------------
-def highlight_text(text, query):
-    for q in query.split():
-        pattern = re.compile(f"({q})", re.IGNORECASE)
-        text = pattern.sub(r"<mark style='background-color:yellow'>\1</mark>", text)
+# highlight kata yang dicari
+def highlight(text, query):
+    for w in query.split():
+        text = re.sub(f"({w})", r"<mark style='background:yellow'>\\1</mark>", text, flags=re.I)
     return text
 
-# =====================================================
-# SEARCH BUTTON
-# =====================================================
-if st.button("Cari", use_container_width=True):
+# link ke file resep di github
+def file_link(fname):
+    return f"https://raw.githubusercontent.com/aaeilru/uts_stki/main/data/processed/{fname}"
+
+# tampilkan hasil
+if run:
     if not query.strip():
-        st.warning("Masukkan kata kunci terlebih dahulu!")
+        st.warning("Masukkan kata kunci terlebih dahulu.")
     else:
         results = vsm.rank(query, k=k)
 
-        st.markdown("<h2 class='fade-in'>📌 Hasil Pencarian:</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 class='fade-in'>📌 Hasil Pencarian</h2>", unsafe_allow_html=True)
 
         for r in results:
             cat = detect_category(r["doc_id"])
-
-            snippet = highlight_text(r["snippet"], query)
+            snippet = highlight(r["snippet"], query)
+            link = file_link(r["doc_id"])
 
             st.markdown(
                 f"""
-                <div class="result-card fade-in">
-                    <h4>{r['doc_id']}  
+                <div class="result fade-in">
+                    <h4>
+                        <a href="{link}" target="_blank" style="text-decoration:none; color:#4fa3f7;">
+                            {r['doc_id']}
+                        </a>
                         <span class="badge">{cat}</span>
-                        <span class="score-badge">{r['score']:.4f}</span>
+                        <span class="score">{r['score']:.4f}</span>
                     </h4>
                     <p>{snippet} ...</p>
                 </div>
@@ -195,10 +125,5 @@ if st.button("Cari", use_container_width=True):
                 unsafe_allow_html=True
             )
 
-# =====================================================
-# FOOTER
-# =====================================================
-st.markdown(
-    "<div class='footer'>Mini Search Engine by <b>Aurelia Dwi W</b> – STKI UTS 2025</div>",
-    unsafe_allow_html=True,
-)
+# footer aplikasi
+st.markdown("<div class='footer'>Mini Search Engine — STKI UTS 2025</div>", unsafe_allow_html=True)
