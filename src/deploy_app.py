@@ -47,8 +47,23 @@ div.stButton > button:hover {
     color:white !important;
 }
 
+.clear-btn {
+    position: absolute;
+    right: 18px;
+    top: 12px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #888;
+}
+.clear-btn:hover {
+    color: #444;
+}
+
 </style>
 """
+
 
 # terapkan css
 st.markdown(BASE_CSS, unsafe_allow_html=True)
@@ -70,7 +85,23 @@ if "last_query" not in st.session_state:
     st.session_state.last_query = ""
 
 # input query
-query = st.text_input("Masukkan query:", placeholder="contoh: resep udang pedas...")
+query_container = st.container()
+with query_container:
+    st.markdown("<div style='position:relative;'>", unsafe_allow_html=True)
+
+    query = st.text_input(
+        "Masukkan query:",
+        placeholder="contoh: resep udang pedas...",
+        key="query_box"
+    )
+
+    # tombol X
+    if query.strip():
+        if st.button("✖", key="clear_query", help="Hapus teks", use_container_width=False):
+            st.session_state.query_box = ""
+            st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # jumlah top-k
 k = st.slider("Top-K", 1, 10, 5)
@@ -100,7 +131,8 @@ def detect_category(f):
 # highlight kata yang dicari
 def highlight(text, query):
     for w in query.split():
-        text = re.sub(f"({w})", r"<mark style='background:yellow'>\\1</mark>", text, flags=re.I)
+        pattern = re.compile(re.escape(w), re.IGNORECASE)
+        text = pattern.sub(lambda m: f"<mark style='background:yellow'>{m.group(0)}</mark>", text)
     return text
 
 # link ke file resep di github
