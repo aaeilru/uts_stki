@@ -36,6 +36,7 @@ pytz==2025.2
 pyzmq==27.1.0
 regex==2025.11.3
 Sastrawi==1.0.1
+scikit-learn
 six==1.17.0
 stack-data==0.6.3
 streamlit
