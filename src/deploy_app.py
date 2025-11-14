@@ -22,7 +22,7 @@ BASE_CSS = """
 # css light mode
 LIGHT = """
 <style>
-body{ background:#f6f7fb; }
+.stApp { background:#f6f7fb !important; }
 .result{ background:white; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:18px; }
 .score{ background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:8px; font-weight:600; }
 </style>
@@ -31,7 +31,7 @@ body{ background:#f6f7fb; }
 # css dark mode
 DARK = """
 <style>
-body{ background:#0e1117; }
+.stApp { background:#0e1117 !important; }
 h1,h2,h3,h4,p,label{ color:#e5e5e5 !important; }
 .result{ background:#1a1d23; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(255,255,255,0.05); margin-bottom:18px; color:#e5e5e5; }
 .score{ background:#1b5e20; color:#a5d6a7; padding:4px 10px; border-radius:8px; font-weight:600; }
@@ -80,6 +80,7 @@ if st.button("Cari"):
 def detect_category(f):
     f = f.lower()
     if "ayam" in f: return "🐔 Ayam"
+    if "telur" in f: return "🥚 Telur"
     if any(x in f for x in ["udang", "ikan", "cumi"]): return "🐟 Seafood"
     if any(x in f for x in ["sapi", "kambing", "daging"]): return "🥩 Daging"
     if any(x in f for x in ["mie", "nasi"]): return "🍜 Karbohidrat"
