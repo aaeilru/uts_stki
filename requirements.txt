@@ -38,6 +38,7 @@ regex==2025.11.3
 Sastrawi==1.0.1
 six==1.17.0
 stack-data==0.6.3
+streamlit
 tornado==6.5.2
 tqdm==4.67.1
 traitlets==5.14.3
