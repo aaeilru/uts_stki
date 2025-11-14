@@ -1,5 +1,5 @@
 import streamlit as st
-from vsm_ir import VSMRetrieval
+from src vsm_ir import VSMRetrieval
 
 st.title("Mini Search Engine – VSM STKI UTS")
 
