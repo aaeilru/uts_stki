@@ -1,4 +1,3 @@
-# src/search_engine.py
 import os
 import argparse
 import math
@@ -150,12 +149,46 @@ def run_vsm_cli(processed_dir, query, k=5, weight="tfidf"):
             results.append({"doc_id": fname, "score": score, "snippet": snippet, "top_terms": top_terms})
         return results
 
-def run_boolean_cli(processed_dir, query, k=5):
+def run_boolean_cli(processed_dir, query, k=5, op="OR"):
+    """
+    Boolean retrieval sederhana:
+    - op: "OR" (default) agar hasil tidak terlalu ketat.
+    - output: list of dict {doc_id, score, snippet, top_terms}
+      sehingga kompatibel dengan printer di main().
+    """
     index = build_inverted_index(processed_dir)
     qtokens = query.lower().split()
-    res = boolean_retrieve(qtokens, index, op="AND")
-    # return up to k as results with dummy score
-    return [{"doc_id": r, "score": 1.0, "snippet": ""} for r in res[:k]]
+
+    # gunakan AND kalau mau strict, OR kalau mau lebih longgar
+    matched = boolean_retrieve(qtokens, index, op=op)
+
+    results = []
+    for fname in matched[:k]:
+        fpath = os.path.join(processed_dir, fname)
+        try:
+            with open(fpath, encoding="utf-8") as f:
+                tokens = f.read().split()
+        except FileNotFoundError:
+            tokens = []
+            snippet = ""
+        else:
+            snippet = " ".join(tokens[:25])
+
+        # skor sederhana: jumlah kata query yang muncul di dokumen
+        tf_doc = Counter(tokens)
+        score = sum(1 for t in set(qtokens) if t in tf_doc)
+
+        # top_terms = kata query yang memang muncul di dokumen
+        top_terms = [t for t in qtokens if t in tf_doc]
+
+        results.append({
+            "doc_id": fname,
+            "score": float(score),
+            "snippet": snippet,
+            "top_terms": top_terms
+        })
+    return results
+
 
 def run_bm25_cli(processed_dir, query, k=5):
     # load corpus as token lists and filenames
@@ -199,7 +232,12 @@ def main():
         results = run_vsm_cli(processed_dir, args.query, k=args.k, weight=args.weight)
 
     # print nicely with explain (top_terms)
-    print(f"\n🔍 Search results (model={args.model}, weight={args.weight}) for: \"{args.query}\"\n")
+    if args.model == "vsm":
+        header = f"model={args.model}, weight={args.weight}"
+    else:
+        header = f"model={args.model}"
+
+    print(f"\n🔍 Search results ({header}) for: \"{args.query}\"\n")
     for i, r in enumerate(results, 1):
         print(f"{i}. {r['doc_id']:<30} score={r['score']:.4f}")
         if r.get("top_terms"):

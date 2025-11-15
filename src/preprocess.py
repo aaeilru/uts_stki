@@ -10,7 +10,7 @@ factory = StemmerFactory()
 stemmer = factory.create_stemmer()
 stop_words = set(stopwords.words('indonesian'))
 
-# === 1. CLEANING TEXT ===
+# CLEANING TEXT
 def clean(text: str) -> str:
     """Membersihkan teks dari angka, tanda baca, dan ubah ke huruf kecil"""
     text = text.lower()                                # case folding
@@ -20,12 +20,12 @@ def clean(text: str) -> str:
     text = re.sub(r'\s+', ' ', text).strip()           # hapus spasi ganda
     return text
 
-# === 2. TOKENIZATION ===
+# TOKENIZATION 
 def tokenize(text: str) -> list:
     """Memecah teks menjadi token-token kata"""
     return word_tokenize(text)
 
-# === 3. STOPWORD REMOVAL ===
+# STOPWORD REMOVAL
 def remove_stopwords(tokens: list) -> list:
     """Menghapus stopword Bahasa Indonesia"""
     return [t for t in tokens if t not in stop_words]
@@ -35,7 +35,7 @@ def stem(tokens: list) -> list:
     """Melakukan stemming pada setiap token"""
     return [stemmer.stem(t) for t in tokens]
 
-# === 5. PIPELINE LENGKAP (bersih → token → hapus stopword → stemming) ===
+# PIPELINE LENGKAP (bersih → token → hapus stopword → stemming)
 def preprocess_text(text: str) -> list:
     cleaned = clean(text)
     tokens = tokenize(cleaned)
@@ -43,7 +43,7 @@ def preprocess_text(text: str) -> list:
     tokens = stem(tokens)
     return tokens
 
-# === 6. PROSES SEMUA FILE DALAM FOLDER DATA/ ===
+# PROSES SEMUA FILE DALAM FOLDER DATA/
 def preprocess_directory(input_dir: str, output_dir: str):
     """Memproses semua file .txt di folder data/ dan menyimpannya di data/processed/"""
     if not os.path.exists(output_dir):
@@ -69,7 +69,7 @@ def preprocess_directory(input_dir: str, output_dir: str):
     print(f"\n✅ Semua {total} file di '{input_dir}' berhasil diproses.")
     print(f"Hasil tersimpan di: '{output_dir}'")
 
-# === 7. EKSEKUSI LANGSUNG SAAT FILE DIJALANKAN ===
+# EKSEKUSI LANGSUNG SAAT FILE DIJALANKAN
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.dirname(__file__))  # naik satu folder dari src/
     input_dir = os.path.join(base_dir, "data")
