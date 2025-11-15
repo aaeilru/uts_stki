@@ -16,7 +16,7 @@ Fitur utama:
 ---
 
 ## Struktur direktori
-
+```
 stki-uts-A11.2023.15263-Aurelia Dwi W/
 ├── app/
 │ ├── chat.py # Template-based generator
@@ -45,7 +45,7 @@ stki-uts-A11.2023.15263-Aurelia Dwi W/
 │ └── UTS_STKI_A11.2023.15263.ipynb 
 │
 ├── requirements.txt
-
+```
 ---
 
 ## Status & Badges
