@@ -39,11 +39,11 @@ stki-uts-A11.2023.15263-Aurelia Dwi W/
 │ ├── metrics_comparison.png
 │ ├── laporan_uts_stki.pdf
 │ ├── soal 01.pdf
-│ └── README.md
 │
 ├── notebooks/
 │ └── UTS_STKI_A11.2023.15263.ipynb 
 │
+├── README.md
 ├── requirements.txt
 ```
 ---
