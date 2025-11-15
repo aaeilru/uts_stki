@@ -130,6 +130,7 @@ Output yang otomatis muncul:
 ```bash
 reports/metrics_comparison.png
 ```
+---
 
 ## Asumsi
 - Dataset berupa resep masakan Indonesia Seluruh file teks dalam folder data/raw/ diasumsikan berformat .txt.
@@ -137,3 +138,13 @@ reports/metrics_comparison.png
 - Gold Standard (gold.json) disiapkan manual
 - Model VSM hanya mendukung TF-IDF dan TF-IDF Sublinear (BM25 diimplementasikan secara manual)
 - Evaluasi dilakukan pada skenario query sederhana
+
+---
+
+## Authors
+
+Aurelia Dwi Wijayanti [@aaeilru](https://www.github.com/aaeilru)
+
+A11.2023.15263
+
+
