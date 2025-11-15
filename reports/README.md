@@ -15,6 +15,38 @@ Fitur utama:
 
 ---
 
+## Struktur direktori
+stki-uts-A11.2023.15263-Aurelia Dwi W/
+├── app/
+│ ├── chat.py # Template-based generator
+│ └── main.py # Streamlit main UI
+│
+├── src/
+│ ├── preprocess.py # Preprocessing dokumen
+│ ├── boolean_ir.py # Boolean Retrieval
+│ ├── vsm_ir.py # VSM + TF-IDF scoring
+│ ├── search_engine.py # CLI orchestrator
+│ ├── evaluation.py # Evaluasi TF-IDF/Sublinear/BM25
+│ └── deploy_app.py # Script deployment Streamlit
+│
+├── data/
+│ ├── ... # .txt
+│ ├── processed/ # Dokumen hasil preprocessing
+│ └── gold.json # Gold standard relevance
+│
+├── reports/
+│ ├── metrics_comparison.png
+│ ├── laporan_uts_stki.pdf
+│ ├── soal 01.pdf
+│ └── README.md
+│
+├── notebooks/
+│ └── UTS_STKI_A11.2023.15263.ipynb 
+│
+├── requirements.txt
+
+---
+
 ## Status & Badges
 
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
